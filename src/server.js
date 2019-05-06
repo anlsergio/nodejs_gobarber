@@ -4,6 +4,7 @@ const LokiStore = require('connect-loki')(session)
 const nunjucks = require('nunjucks')
 const path = require('path')
 const flash = require('connect-flash')
+const dateFilter = require('nunjucks-date-filter')
 
 const sessionSecret = require('./credentials/sessionKey.json').sessionKey
 
@@ -34,11 +35,14 @@ class App {
   }
 
   views () {
-    nunjucks.configure(path.resolve(__dirname, 'app', 'views'), {
+    const env = nunjucks.configure(path.resolve(__dirname, 'app', 'views'), {
       watch: this.isDev,
       express: this.express,
       autoescape: true
     })
+
+    dateFilter.setDefaultFormat('HH:mm')
+    env.addFilter('date', dateFilter)
 
     this.express.use(express.static(path.resolve(__dirname, 'public')))
     this.express.set('view engine', 'njk')
